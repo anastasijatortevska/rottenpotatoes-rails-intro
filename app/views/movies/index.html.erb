@@ -5,10 +5,11 @@
 
 <%= form_tag movies_path, method: :get, id: 'ratings_form' do %>
   Include:
+  <%= hidden_field_tag 'ratings[]', '' %>
   <% @all_ratings.each do |rating| %>
-    <div class="form-check  form-check-inline">
-      <%= label_tag "ratings[#{rating}]", rating, class: 'form-check-label' %>
-      <%= check_box_tag "ratings[#{rating}]", "1",  @ratings_to_show.include?(rating), class: 'form-check-input' %>
+    <div class="form-check form-check-inline">
+      <%= label_tag "ratings_#{rating}", rating, class: 'form-check-label' %>
+      <%= check_box_tag "ratings[]", rating, params[:ratings]&.include?(rating), class: 'form-check-input' %>
     </div>
   <% end %>
   <%= submit_tag 'Refresh', id: 'ratings_submit', class: 'btn btn-primary' %>

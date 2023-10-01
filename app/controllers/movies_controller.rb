@@ -8,29 +8,25 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @all_ratings = Movie.all_ratings
-    selected_ratings = params[:ratings]&.keys || []
-    @ratings_to_show = selected_ratings
+    # Check if settings exist in session and set defaults if not
+    session[:ratings] ||= {}
+    session[:sort] ||= 'title'
+    session[:direction] ||= 'asc'
   
-    sort_column = nil
-    default_direction = 'asc'
+    # Retrieve ratings and sorting options from session or params
+    selected_ratings = params[:ratings] || session[:ratings]
+    sort_column = params[:sort] || session[:sort]
+    direction = params[:direction] || session[:direction]
   
-    if params[:sort] == 'title' || params[:sort] == 'release_date'
-      sort_column = params[:sort].to_sym
-      direction = (params[:sort] == session[:sort] && session[:direction] == 'asc') ? 'desc' : 'asc'
-    else
-      sort_column = session[:sort]
-      direction = session[:direction] || default_direction
-    end
-  
+    # Store the current settings in session
+    session[:ratings] = selected_ratings
     session[:sort] = sort_column
     session[:direction] = direction
   
+    # Use the settings to filter and sort movies
     @movies = Movie.with_ratings(selected_ratings).order(sort_column => direction)
-  
-    @ratings_url_params = Hash[selected_ratings.map { |rating| [:"ratings[#{rating}]", '1'] }]
+    @all_ratings = Movie.all_ratings
   end
-  
   
   def new
     # default: render 'new' template
