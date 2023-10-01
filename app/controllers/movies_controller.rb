@@ -24,13 +24,12 @@ class MoviesController < ApplicationController
     end
   
     session[:sort] = sort_column
-    session[:direction] = direction
+    session[:direction] = direction # Set session direction
   
     @movies = Movie.with_ratings(selected_ratings).order(sort_column => direction)
   
     @ratings_url_params = Hash[selected_ratings.map { |rating| [:"ratings[#{rating}]", '1'] }]
-  end
-  
+  end  
   
   def new
     # default: render 'new' template
