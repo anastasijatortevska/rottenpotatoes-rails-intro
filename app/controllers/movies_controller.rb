@@ -34,7 +34,6 @@ class MoviesController < ApplicationController
     @movies = Movie.with_ratings(selected_ratings.keys).order(sort_column => direction)
     @all_ratings = Movie.all_ratings
   end
-  
 
   def new
     # default: render 'new' template
