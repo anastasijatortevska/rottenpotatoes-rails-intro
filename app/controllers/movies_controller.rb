@@ -1,4 +1,5 @@
 class MoviesController < ApplicationController
+  before_action :set_all_ratings, only: :index
 
   def show
     id = params[:id] # retrieve movie ID from URI route
@@ -7,8 +8,19 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    # Retrieve all possible ratings from the Movie model
+    @all_ratings = Movie.all_ratings
+  
+    # Get the selected ratings from the params
+    selected_ratings = params[:ratings]&.keys || []
+  
+    # Set @ratings_to_show based on selected ratings
+    @ratings_to_show = selected_ratings
+  
+    # Use the with_ratings method in the Movie model to filter movies
+    @movies = Movie.with_ratings(selected_ratings)
   end
+  
 
   def new
     # default: render 'new' template
@@ -43,5 +55,9 @@ class MoviesController < ApplicationController
   # This helps make clear which methods respond to requests, and which ones do not.
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
+  end
+
+  def set_all_ratings
+    @all_ratings = Movie.all_ratings
   end
 end
