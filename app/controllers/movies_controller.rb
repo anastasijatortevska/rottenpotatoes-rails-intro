@@ -24,7 +24,7 @@ class MoviesController < ApplicationController
     session[:direction] = direction
   
     # Initialize @ratings_to_show to all ratings if it's nil
-    @ratings_to_show = selected_ratings.keys || Movie.all_ratings
+    @ratings_to_show = selected_ratings.keys.presence || Movie.all_ratings
   
     # Set @title_header and @release_date_header based on the current sort_column
     @title_header = sort_column == 'title' ? 'hilite' : ''
