@@ -8,17 +8,25 @@ class MoviesController < ApplicationController
   end
 
   def index
-    # Retrieve all possible ratings from the Movie model
     @all_ratings = Movie.all_ratings
-  
-    # Get the selected ratings from the params
     selected_ratings = params[:ratings]&.keys || []
-  
-    # Set @ratings_to_show based on selected ratings
     @ratings_to_show = selected_ratings
   
-    # Use the with_ratings method in the Movie model to filter movies
-    @movies = Movie.with_ratings(selected_ratings)
+    default_direction = 'asc'
+  
+    if params[:sort] == 'title'
+      sort_column = :title
+    elsif params[:sort] == 'release_date'
+      sort_column = :release_date
+    else
+      sort_column = :title
+    end
+  
+    params[:direction] ||= default_direction
+  
+    @movies = Movie.with_ratings(selected_ratings).order(sort_column => params[:direction])
+  
+    @ratings_url_params = Hash[selected_ratings.map { |rating| [:"ratings[#{rating}]", '1'] }]
   end
   
 
