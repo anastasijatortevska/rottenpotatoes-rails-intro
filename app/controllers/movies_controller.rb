@@ -8,22 +8,18 @@ class MoviesController < ApplicationController
   end
 
   def index
-    # Check if settings exist in session and set defaults if not
     session[:ratings] ||= {}
     session[:sort] ||= 'title'
     session[:direction] ||= 'asc'
   
-    # Retrieve ratings and sorting options from session or params
     selected_ratings = params[:ratings] || session[:ratings]
     sort_column = params[:sort] || session[:sort]
     direction = params[:direction] || session[:direction]
   
-    # Store the current settings in session
     session[:ratings] = selected_ratings
     session[:sort] = sort_column
     session[:direction] = direction
-  
-    # Use the settings to filter and sort movies
+
     @movies = Movie.with_ratings(selected_ratings).order(sort_column => direction)
     @all_ratings = Movie.all_ratings
   end
