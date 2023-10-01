@@ -23,12 +23,16 @@ class MoviesController < ApplicationController
     session[:sort] = sort_column
     session[:direction] = direction
   
-    # Use the settings to filter and sort movies
-    @movies = Movie.with_ratings(selected_ratings).order(sort_column => direction)
-    @all_ratings = Movie.all_ratings
+    # Initialize @ratings_to_show to all ratings if it's nil
+    @ratings_to_show = selected_ratings.keys || Movie.all_ratings
   
-    # Set sort_column as an instance variable to make it available in the view
-    @sort_column = sort_column
+    # Set @title_header and @release_date_header based on the current sort_column
+    @title_header = sort_column == 'title' ? 'hilite' : ''
+    @release_date_header = sort_column == 'release_date' ? 'hilite' : ''
+  
+    # Use the settings to filter and sort movies
+    @movies = Movie.with_ratings(selected_ratings.keys).order(sort_column => direction)
+    @all_ratings = Movie.all_ratings
   end
   
 
