@@ -12,26 +12,39 @@ class MoviesController < ApplicationController
     session[:ratings] ||= {}
     session[:sort] ||= 'title'
     session[:direction] ||= 'asc'
+    @ratings_to_show = @all_ratings
   
     # Retrieve ratings and sorting options from session or params
-    selected_ratings = params[:ratings] || session[:ratings]
+    # selected_ratings = params[:ratings] || session[:ratings]
+
+    if params.has_key?(:ratings)
+      if params[:ratings].keys.size>0
+        @ratings_to_show = []
+        @all_ratings.each do |rating|
+          if params[:ratings][rating] == "1"
+            @ratings_to_show << rating
+          end
+        end
+      end
+    end
+
     sort_column = params[:sort] || session[:sort]
     direction = params[:direction] || session[:direction]
   
     # Store the current settings in session
-    session[:ratings] = selected_ratings
+    session[:ratings] = @ratings_to_show
     session[:sort] = sort_column
     session[:direction] = direction
   
     # Initialize @ratings_to_show to all ratings if it's nil
-    @ratings_to_show = selected_ratings.presence || Movie.all_ratings
+    @ratings_to_show = @ratings_to_show.presence || Movie.all_ratings
   
     # Set @title_header and @release_date_header based on the current sort_column
     @title_header = sort_column == 'title' ? 'hilite' : ''
     @release_date_header = sort_column == 'release_date' ? 'hilite' : ''
   
     # Use the settings to filter and sort movies
-    @movies = Movie.with_ratings(selected_ratings.keys).order(sort_column => direction)
+    @movies = Movie.with_ratings(@ratings_to_show).order(sort_column => direction)
     @all_ratings = Movie.all_ratings
   end
 
