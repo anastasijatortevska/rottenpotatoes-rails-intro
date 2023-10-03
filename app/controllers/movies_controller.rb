@@ -1,5 +1,4 @@
 class MoviesController < ApplicationController
-  before_action :set_all_ratings, only: :index
 
   def show
     id = params[:id] # retrieve movie ID from URI route
@@ -9,16 +8,16 @@ class MoviesController < ApplicationController
 
   def index
     # Check if settings exist in session and set defaults if not
-    session[:ratings] ||= {}
-    session[:sort] ||= 'title'
-    session[:direction] ||= 'asc'
+    @all_ratings = Movie.all_ratings
     @ratings_to_show = @all_ratings
   
-    # Retrieve ratings and sorting options from session or params
-    # selected_ratings = params[:ratings] || session[:ratings]
+
+    if (!params[:ratings] and session[:ratings]) or (!params[:sort_by] and session[:sort_by])
+      redirect_to movies_path(:sort_by => session[:sort_by], :ratings => session[:ratings])
+    end
 
     if params.has_key?(:ratings)
-      if params[:ratings].keys.size>0
+      if params[:ratings].keys.size > 0
         @ratings_to_show = []
         @all_ratings.each do |rating|
           if params[:ratings][rating] == "1"
@@ -28,24 +27,18 @@ class MoviesController < ApplicationController
       end
     end
 
-    sort_column = params[:sort] || session[:sort]
-    direction = params[:direction] || session[:direction]
-  
-    # Store the current settings in session
-    session[:ratings] = @ratings_to_show
-    session[:sort] = sort_column
-    session[:direction] = direction
-  
-    # Initialize @ratings_to_show to all ratings if it's nil
-    @ratings_to_show = @ratings_to_show.presence || Movie.all_ratings
-  
-    # Set @title_header and @release_date_header based on the current sort_column
-    @title_header = sort_column == 'title' ? 'hilite' : ''
-    @release_date_header = sort_column == 'release_date' ? 'hilite' : ''
-  
-    # Use the settings to filter and sort movies
-    @movies = Movie.with_ratings(@ratings_to_show).order(sort_column => direction)
-    @all_ratings = Movie.all_ratings
+    if @ratings_to_show != []
+      @movies = Movie.with_ratings(@ratings_to_show)
+      session[:ratings]=params[:ratings]
+    else
+      @movies = Movie.all
+    end
+
+    if params[:sort_by]
+      @movies = @movies.order(params[:sort_by])
+      session[:sort_by] = params[:sort_by]
+    end
+    return @movies
   end
 
   def new
@@ -81,9 +74,5 @@ class MoviesController < ApplicationController
   # This helps make clear which methods respond to requests, and which ones do not.
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
-  end
-
-  def set_all_ratings
-    @all_ratings = Movie.all_ratings
   end
 end
