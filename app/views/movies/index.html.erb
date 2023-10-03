@@ -4,7 +4,8 @@
 <%#  Part 1: Start here... %>
 
 <%= form_tag movies_path, method: :get, id: 'ratings_form' do %>
-  Include:
+  Include
+  <%= hidden_field_tag :sort_by, params[:sort_by] %>
   <% @all_ratings.each do |rating| %>
     <div class="form-check  form-check-inline">
       <%= label_tag "ratings[#{rating}]", rating, class: 'form-check-label' %>
