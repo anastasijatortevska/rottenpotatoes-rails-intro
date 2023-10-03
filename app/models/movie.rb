@@ -5,7 +5,6 @@ class Movie < ActiveRecord::Base
 
   def self.with_ratings(ratings_list)
     if ratings_list.nil? || ratings_list.empty?
-      # If no ratings are selected, retrieve ALL movies
       return Movie.all
     else
       # Retrieve movies with the selected ratings

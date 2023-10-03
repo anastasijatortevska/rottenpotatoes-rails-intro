@@ -9,36 +9,27 @@ class MoviesController < ApplicationController
   def index
     # Check if settings exist in session and set defaults if not
     @all_ratings = Movie.all_ratings
-    @ratings_to_show = @all_ratings
   
-
-    if (!params[:ratings] and session[:ratings]) or (!params[:sort_by] and session[:sort_by])
-      redirect_to movies_path(:sort_by => session[:sort_by], :ratings => session[:ratings])
+    if !params[:ratings] && session[:ratings] || !params[:sort_by] && session[:sort_by]
+      redirect_to movies_path(sort_by: session[:sort_by], ratings: session[:ratings])
+      return
     end
-
-    if params.has_key?(:ratings)
-      if params[:ratings].keys.size > 0
-        @ratings_to_show = []
-        @all_ratings.each do |rating|
-          if params[:ratings][rating] == "1"
-            @ratings_to_show << rating
-          end
-        end
-      end
-    end
-
-    if @ratings_to_show != []
+  
+    @ratings_to_show = params[:ratings]&.keys || @all_ratings
+  
+    if @ratings_to_show.any?
       @movies = Movie.with_ratings(@ratings_to_show)
-      session[:ratings]=params[:ratings]
+      session[:ratings] = params[:ratings]
     else
       @movies = Movie.all
     end
-
+  
     if params[:sort_by]
       @movies = @movies.order(params[:sort_by])
       session[:sort_by] = params[:sort_by]
     end
-    return @movies
+  
+    @movies
   end
 
   def new
@@ -75,4 +66,5 @@ class MoviesController < ApplicationController
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
+  #removed all movies def
 end
